@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Daily Affirmations</title>
+    <style>
+        :root {
+            --bg-dark: #0f0f1a;
+            --bg-glow: #1a1a2e;
+            --text-main: #d1d1d1;
+            --text-dim: #b0b0b0;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: radial-gradient(circle at center, var(--bg-glow) 0%, var(--bg-dark) 100%);
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            color: var(--text-main);
+            overflow: hidden; 
+            touch-action: pan-x; /* Optimizes for horizontal swiping */
+        }
+
+        /* Star Field */
+        #star-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: twinkle var(--duration) ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Stationary Header */
+        header {
+            position: fixed;
+            top: 22%; 
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        h1 {
+            font-weight: 300;
+            letter-spacing: 2px;
+            font-size: 1.6rem; /* Slightly smaller for mobile */
+            margin: 0;
+        }
+
+        .line {
+            width: 100px;
+            height: 1px;
+            background: #555;
+            margin: 15px auto 0;
+        }
+
+        /* Scrollable Content */
+        .scroller {
+            display: flex;
+            height: 100vh;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            position: relative;
+            z-index: 5;
+            -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling for iOS */
+        }
+
+        .scroller::-webkit-scrollbar { display: none; }
+
+        section {
+            flex: 0 0 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            scroll-snap-align: start;
+            text-align: center;
+            padding: 0 30px;
+            box-sizing: border-box;
+        }
+
+        .affirmation-text {
+            font-style: italic;
+            font-size: 1.4rem; /* Adjusted for mobile readability */
+            line-height: 1.6;
+            color: var(--text-dim);
+            max-width: 300px; /* Narrower for portrait screens */
+            margin-top: 60px;
+        }
+
+        /* Navigation Dots */
+        .nav-dots {
+            position: fixed;
+            bottom: 12%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            background: #444;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .dot.active {
+            background: white;
+            box-shadow: 0 0 8px white;
+        }
+
+        /* Mobile Specific Adjustment */
+        @media (max-width: 480px) {
+            h1 { font-size: 1.4rem; }
+            .affirmation-text { font-size: 1.25rem; }
+            header { top: 20%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="star-container"></div>
+
+    <header>
+        <h1>Daily Affirmations</h1>
+        <div class="line"></div>
+    </header>
+
+    <div class="scroller" id="scroller"></div>
+
+    <div class="nav-dots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+
+    <script>
+        const allAffirmations = [
+            "The challenges I face help me to grow into the person I am meant to be",
+            "I am worthy of the life I say I want",
+            "My potential to succeed is infinite",
+            "I choose to be proud of myself and the progress I am making",
+            "I am in charge of my own happiness",
+            "Mistakes are just lessons in disguise",
+            "I radiate confidence, self-respect, and inner harmony",
+            "My mind is full of brilliant ideas",
+            "I am resilient, strong, and brave",
+            "Every day is a fresh start and a new opportunity"
+        ];
+
+        // Stars
+        const starContainer = document.getElementById('star-container');
+        for (let i = 0; i < 180; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            const size = Math.random() * 2 + 'px';
+            star.style.width = size;
+            star.style.height = size;
+            star.style.top = Math.random() * 100 + '%';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+            starContainer.appendChild(star);
+        }
+
+        // Randomize
+        const selected = [...allAffirmations].sort(() => 0.5 - Math.random()).slice(0, 3);
+
+        // Render
+        const scroller = document.getElementById('scroller');
+        selected.forEach(text => {
+            const section = document.createElement('section');
+            section.innerHTML = `<div class="affirmation-text">${text}</div>`;
+            scroller.appendChild(section);
+        });
+
+        // Dot logic
+        const dots = document.querySelectorAll('.dot');
+        scroller.addEventListener('scroll', () => {
+            const index = Math.round(scroller.scrollLeft / window.innerWidth);
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        });
+    </script>
+</body>
+</html>
