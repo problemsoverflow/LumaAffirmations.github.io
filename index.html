@@ -3,156 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Daily Affirmations</title>
+    <title>Affirmations</title>
     <style>
-        :root {
-            --bg-dark: #0f0f1a;
-            --bg-glow: #1a1a2e;
-            --text-main: #d1d1d1;
-            --text-dim: #b0b0b0;
-        }
-
         body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-            background: #0f0f1a; /* Fallback */
-            background: radial-gradient(circle at center, var(--bg-glow) 0%, var(--bg-dark) 100%);
-            font-family: 'Segoe UI', sans-serif;
-            color: var(--text-main);
-            overflow: hidden; 
+            margin: 0; padding: 0; height: 100%; width: 100%;
+            background: #0f0f1a;
+            color: #d1d1d1;
+            font-family: sans-serif;
+            overflow: hidden;
         }
 
-        /* 1. STARS FIX (Using higher Z-index and absolute positioning) */
-        #star-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1; /* Lowest layer but above background */
-            pointer-events: none;
-        }
-
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle var(--duration) ease-in-out infinite;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.2; }
-            50% { opacity: 0.9; }
-        }
-
-        /* 2. GAP FIX (Bringing Header and Text closer) */
-        header {
+        /* 1. Canvas Stars (More reliable for mobile) */
+        #starCanvas {
             position: fixed;
-            top: 28%; /* Positioned slightly higher */
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 10;
-            width: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
             pointer-events: none;
         }
 
-        h1 {
-            font-weight: 300;
-            letter-spacing: 2px;
-            font-size: 1.5rem;
-            margin: 0;
-        }
-
-        .line {
-            width: 100px;
-            height: 1px;
-            background: rgba(255,255,255,0.2);
-            margin: 15px auto 0;
-        }
-
-        .scroller {
-            display: flex;
+        /* 2. Main Layout Container */
+        .app-container {
+            position: relative;
+            z-index: 10;
+            display: grid;
+            grid-template-rows: 1fr auto 1fr auto; /* Controls the vertical spacing */
             height: 100vh;
             width: 100vw;
-            overflow-x: scroll;
-            scroll-snap-type: x mandatory;
-            scrollbar-width: none;
-            position: relative;
-            z-index: 5;
-            -webkit-overflow-scrolling: touch;
+            text-align: center;
         }
 
+        /* Fixed Header */
+        header {
+            grid-row: 2; /* Forces it to the upper-middle area */
+            padding-bottom: 20px;
+        }
+
+        h1 { font-weight: 300; font-size: 1.5rem; letter-spacing: 2px; margin: 0; }
+        .line { width: 120px; height: 1px; background: #555; margin: 15px auto 0; }
+
+        /* 3. Scrolling Content */
+        .scroller {
+            grid-row: 3; /* Affirmations live directly under the header */
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
         .scroller::-webkit-scrollbar { display: none; }
 
         section {
             flex: 0 0 100vw;
-            height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Keeps text closer to the header above it */
+            padding-top: 20px; /* The "Gap" control */
             scroll-snap-align: start;
-            text-align: center;
-            padding: 0 40px;
-            box-sizing: border-box;
         }
 
         .affirmation-text {
             font-style: italic;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             line-height: 1.6;
-            color: var(--text-dim);
-            max-width: 280px;
-            margin-top: 100px; /* Reduced gap from header */
+            color: #b0b0b0;
+            max-width: 80%;
         }
 
-        /* 3. DOTS FIX (Better visibility and mobile response) */
+        /* 4. Dots */
         .nav-dots {
-            position: fixed;
-            bottom: 15%;
-            left: 50%;
-            transform: translateX(-50%);
+            grid-row: 4;
+            padding-bottom: 50px;
             display: flex;
+            justify-content: center;
             gap: 15px;
-            z-index: 100; /* Ensure it's on top */
         }
 
         .dot {
-            width: 10px;
-            height: 10px;
-            background: rgba(255,255,255,0.15);
+            width: 10px; height: 10px;
             border-radius: 50%;
-            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.2);
+            transition: 0.3s;
         }
 
         .dot.active {
             background: #ffffff !important;
-            box-shadow: 0 0 12px rgba(255,255,255,0.8);
-            transform: scale(1.2);
+            box-shadow: 0 0 10px #fff;
         }
     </style>
 </head>
 <body>
 
-    <div id="star-container"></div>
+    <canvas id="starCanvas"></canvas>
 
-    <header>
-        <h1>Daily Affirmations</h1>
-        <div class="line"></div>
-    </header>
+    <div class="app-container">
+        <header>
+            <h1>Daily Affirmations</h1>
+            <div class="line"></div>
+        </header>
 
-    <div class="scroller" id="scroller"></div>
+        <div class="scroller" id="scroller"></div>
 
-    <div class="nav-dots" id="dot-container">
-        <div class="dot active"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
+        <div class="nav-dots">
+            <div class="dot active"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
     </div>
 
     <script>
-        const allAffirmations = [
+        // --- 1. Canvas Stars Logic ---
+        const canvas = document.getElementById('starCanvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            stars = [];
+            for(let i=0; i<150; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2,
+                    opacity: Math.random(),
+                    speed: Math.random() * 0.02 + 0.01
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = "white";
+            stars.forEach(s => {
+                s.opacity += s.speed;
+                if(s.opacity > 1 || s.opacity < 0.2) s.speed = -s.speed;
+                ctx.globalAlpha = s.opacity;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI*2);
+                ctx.fill();
+            });
+            requestAnimationFrame(draw);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+        draw();
+
+        // --- 2. Affirmation Logic ---
+        const texts = [
             "The challenges I face help me to grow into the person I am meant to be",
             "I am worthy of the life I say I want",
             "My potential to succeed is infinite",
@@ -165,44 +163,21 @@
             "Every day is a fresh start and a new opportunity"
         ];
 
-        // Stars - Added size variance and better positioning
-        const starContainer = document.getElementById('star-container');
-        for (let i = 0; i < 150; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            const size = (Math.random() * 3) + 'px';
-            star.style.width = size;
-            star.style.height = size;
-            star.style.top = Math.random() * 100 + '%';
-            star.style.left = Math.random() * 100 + '%';
-            star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
-            starContainer.appendChild(star);
-        }
-
-        // Randomize 3
-        const selected = [...allAffirmations].sort(() => 0.5 - Math.random()).slice(0, 3);
-
-        // Render sections
+        const selected = texts.sort(() => 0.5 - Math.random()).slice(0, 3);
         const scroller = document.getElementById('scroller');
-        selected.forEach(text => {
-            const section = document.createElement('section');
-            section.innerHTML = `<div class="affirmation-text">${text}</div>`;
-            scroller.appendChild(section);
+        const dots = document.querySelectorAll('.dot');
+
+        selected.forEach(t => {
+            const sec = document.createElement('section');
+            sec.innerHTML = `<div class="affirmation-text">${t}</div>`;
+            scroller.appendChild(sec);
         });
 
-        // Enhanced Dot Logic for Mobile
-        const dots = document.querySelectorAll('.dot');
+        // --- 3. Dot Fix ---
         scroller.addEventListener('scroll', () => {
-            // Using ScrollLeft divided by clientWidth for accuracy
-            const index = Math.round(scroller.scrollLeft / scroller.clientWidth);
-            dots.forEach((dot, i) => {
-                if(i === index) {
-                    dot.classList.add('active');
-                } else {
-                    dot.classList.remove('active');
-                }
-            });
-        }, { passive: true });
+            const index = Math.round(scroller.scrollLeft / window.innerWidth);
+            dots.forEach((d, i) => d.className = i === index ? 'dot active' : 'dot');
+        });
     </script>
 </body>
 </html>
