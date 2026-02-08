@@ -16,40 +16,41 @@
             margin: 0;
             padding: 0;
             height: 100%;
+            width: 100%;
+            background: #0f0f1a; /* Fallback */
             background: radial-gradient(circle at center, var(--bg-glow) 0%, var(--bg-dark) 100%);
-            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             color: var(--text-main);
             overflow: hidden; 
-            touch-action: pan-x; /* Optimizes for horizontal swiping */
         }
 
-        /* Star Field */
+        /* 1. STARS FIX (Using higher Z-index and absolute positioning) */
         #star-container {
-            position: fixed;
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 0;
+            z-index: 1; /* Lowest layer but above background */
+            pointer-events: none;
         }
 
         .star {
             position: absolute;
             background: white;
             border-radius: 50%;
-            opacity: 0.5;
             animation: twinkle var(--duration) ease-in-out infinite;
         }
 
         @keyframes twinkle {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.9; }
         }
 
-        /* Stationary Header */
+        /* 2. GAP FIX (Bringing Header and Text closer) */
         header {
             position: fixed;
-            top: 22%; 
+            top: 28%; /* Positioned slightly higher */
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
@@ -61,27 +62,27 @@
         h1 {
             font-weight: 300;
             letter-spacing: 2px;
-            font-size: 1.6rem; /* Slightly smaller for mobile */
+            font-size: 1.5rem;
             margin: 0;
         }
 
         .line {
             width: 100px;
             height: 1px;
-            background: #555;
+            background: rgba(255,255,255,0.2);
             margin: 15px auto 0;
         }
 
-        /* Scrollable Content */
         .scroller {
             display: flex;
             height: 100vh;
-            overflow-x: auto;
+            width: 100vw;
+            overflow-x: scroll;
             scroll-snap-type: x mandatory;
             scrollbar-width: none;
             position: relative;
             z-index: 5;
-            -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling for iOS */
+            -webkit-overflow-scrolling: touch;
         }
 
         .scroller::-webkit-scrollbar { display: none; }
@@ -94,48 +95,42 @@
             align-items: center;
             scroll-snap-align: start;
             text-align: center;
-            padding: 0 30px;
+            padding: 0 40px;
             box-sizing: border-box;
         }
 
         .affirmation-text {
             font-style: italic;
-            font-size: 1.4rem; /* Adjusted for mobile readability */
+            font-size: 1.4rem;
             line-height: 1.6;
             color: var(--text-dim);
-            max-width: 300px; /* Narrower for portrait screens */
-            margin-top: 60px;
+            max-width: 280px;
+            margin-top: 100px; /* Reduced gap from header */
         }
 
-        /* Navigation Dots */
+        /* 3. DOTS FIX (Better visibility and mobile response) */
         .nav-dots {
             position: fixed;
-            bottom: 12%;
+            bottom: 15%;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 12px;
-            z-index: 10;
+            gap: 15px;
+            z-index: 100; /* Ensure it's on top */
         }
 
         .dot {
-            width: 7px;
-            height: 7px;
-            background: #444;
+            width: 10px;
+            height: 10px;
+            background: rgba(255,255,255,0.15);
             border-radius: 50%;
-            transition: 0.3s;
+            transition: all 0.3s ease;
         }
 
         .dot.active {
-            background: white;
-            box-shadow: 0 0 8px white;
-        }
-
-        /* Mobile Specific Adjustment */
-        @media (max-width: 480px) {
-            h1 { font-size: 1.4rem; }
-            .affirmation-text { font-size: 1.25rem; }
-            header { top: 20%; }
+            background: #ffffff !important;
+            box-shadow: 0 0 12px rgba(255,255,255,0.8);
+            transform: scale(1.2);
         }
     </style>
 </head>
@@ -150,7 +145,7 @@
 
     <div class="scroller" id="scroller"></div>
 
-    <div class="nav-dots">
+    <div class="nav-dots" id="dot-container">
         <div class="dot active"></div>
         <div class="dot"></div>
         <div class="dot"></div>
@@ -170,12 +165,12 @@
             "Every day is a fresh start and a new opportunity"
         ];
 
-        // Stars
+        // Stars - Added size variance and better positioning
         const starContainer = document.getElementById('star-container');
-        for (let i = 0; i < 180; i++) {
+        for (let i = 0; i < 150; i++) {
             const star = document.createElement('div');
             star.className = 'star';
-            const size = Math.random() * 2 + 'px';
+            const size = (Math.random() * 3) + 'px';
             star.style.width = size;
             star.style.height = size;
             star.style.top = Math.random() * 100 + '%';
@@ -184,10 +179,10 @@
             starContainer.appendChild(star);
         }
 
-        // Randomize
+        // Randomize 3
         const selected = [...allAffirmations].sort(() => 0.5 - Math.random()).slice(0, 3);
 
-        // Render
+        // Render sections
         const scroller = document.getElementById('scroller');
         selected.forEach(text => {
             const section = document.createElement('section');
@@ -195,14 +190,19 @@
             scroller.appendChild(section);
         });
 
-        // Dot logic
+        // Enhanced Dot Logic for Mobile
         const dots = document.querySelectorAll('.dot');
         scroller.addEventListener('scroll', () => {
-            const index = Math.round(scroller.scrollLeft / window.innerWidth);
+            // Using ScrollLeft divided by clientWidth for accuracy
+            const index = Math.round(scroller.scrollLeft / scroller.clientWidth);
             dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === index);
+                if(i === index) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
             });
-        });
+        }, { passive: true });
     </script>
 </body>
 </html>
