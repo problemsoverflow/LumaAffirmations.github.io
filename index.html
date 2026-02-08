@@ -5,153 +5,147 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Daily Affirmations</title>
     <style>
-        /* 1. Global Reset & Background */
+        /* 1. Reset and Background */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body, html {
-            height: 100%;
-            width: 100%;
-            background-color: #0f0f1a;
+            height: 100%; width: 100%;
             background: radial-gradient(circle at center, #1a1a2e 0%, #0f0f1a 100%);
             color: #d1d1d1;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             overflow: hidden;
+            position: fixed; /* Prevents "bounce" on mobile */
         }
 
-        /* 2. Stars (High Visibility Fix) */
-        #star-field {
-            position: fixed;
+        /* 2. Stars Fix (Using absolute elements for high visibility) */
+        #star-container {
+            position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1;
+            z-index: 0;
             pointer-events: none;
         }
-
         .star {
             position: absolute;
-            background: white;
+            background: #fff;
             border-radius: 50%;
-            opacity: 0.8; /* Higher base opacity */
+            opacity: 0.7;
         }
 
-        /* 3. Stationary Header (Tightened Gap) */
-        .fixed-header {
-            position: absolute;
-            top: 30%; /* Matches your original screenshot better */
-            left: 0;
-            width: 100%;
-            text-align: center;
+        /* 3. Layout Structure */
+        .wrapper {
+            position: relative;
             z-index: 10;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px; /* Forces a small, fixed gap */
         }
 
         h1 {
             font-weight: 300;
             font-size: 1.8rem;
             letter-spacing: 1px;
-            margin-bottom: 12px;
-            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
         }
 
-        .divider {
+        .line {
             width: 140px;
             height: 1px;
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255,255,255,0.3);
             margin: 0 auto;
         }
 
-        /* 4. Scrolling Affirmations */
+        /* 4. The Scrolling Affirmations */
         .scroller {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            width: 100%;
             display: flex;
-            overflow-x: scroll;
+            overflow-x: auto;
             scroll-snap-type: x mandatory;
             scrollbar-width: none;
-            z-index: 5;
             -webkit-overflow-scrolling: touch;
         }
         .scroller::-webkit-scrollbar { display: none; }
 
         section {
             flex: 0 0 100%;
-            height: 100%;
+            padding: 0 40px;
             display: flex;
             justify-content: center;
-            align-items: center;
             scroll-snap-align: start;
-            padding: 0 40px;
         }
 
-        .text {
+        .affirmation-text {
             font-style: italic;
             font-size: 1.5rem;
             line-height: 1.5;
             color: #b0b0b0;
             text-align: center;
-            margin-top: 80px; /* This brings it close to the header line */
-            max-width: 320px;
+            max-width: 300px;
         }
 
-        /* 5. Navigation Dots (High Contrast Fix) */
+        /* 5. Navigation Dots (High Contrast) */
         .nav-dots {
-            position: absolute;
-            bottom: 30%; /* Matches the screenshot placement */
-            left: 50%;
-            transform: translateX(-50%);
+            margin-top: 40px; /* Gap below the text */
             display: flex;
-            gap: 12px;
-            z-index: 20;
+            gap: 15px;
         }
 
         .dot {
             width: 8px;
             height: 8px;
-            background: rgba(255, 255, 255, 0.2); /* Dim but visible */
+            background: rgba(255, 255, 255, 0.2); /* Greyish-white */
             border-radius: 50%;
             transition: 0.3s;
         }
 
         .dot.active {
-            background: #ffffff !important;
-            box-shadow: 0 0 10px white;
-            transform: scale(1.2);
+            background: #ffffff !important; /* Pure white */
+            box-shadow: 0 0 8px #fff;
         }
     </style>
 </head>
 <body>
 
-    <div id="star-field"></div>
+    <div id="star-container"></div>
 
-    <div class="fixed-header">
-        <h1>Daily Affirmations</h1>
-        <div class="divider"></div>
-    </div>
+    <div class="wrapper">
+        <header>
+            <h1>Daily Affirmations</h1>
+            <div class="line"></div>
+        </header>
 
-    <div class="scroller" id="scroller">
+        <div class="scroller" id="scroller">
+            </div>
+
+        <div class="nav-dots">
+            <div class="dot active"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
         </div>
-
-    <div class="nav-dots">
-        <div class="dot active"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
     </div>
 
     <script>
-        // 1. Generate Stars (Div-based for maximum compatibility)
-        const field = document.getElementById('star-field');
-        for (let i = 0; i < 100; i++) {
+        // 1. Generate Stars
+        const starContainer = document.getElementById('star-container');
+        for (let i = 0; i < 120; i++) {
             const star = document.createElement('div');
             star.className = 'star';
             const size = Math.random() * 2.5 + 'px';
             star.style.width = size;
             star.style.height = size;
-            star.style.top = Math.random() * 100 + '%';
             star.style.left = Math.random() * 100 + '%';
-            field.appendChild(star);
+            star.style.top = Math.random() * 100 + '%';
+            starContainer.appendChild(star);
         }
 
-        // 2. Randomized Affirmations
-        const quotes = [
+        // 2. Random Affirmations
+        const list = [
             "The challenges I face help me to grow into the person I am meant to be",
             "I am worthy of the life I say I want",
             "My potential to succeed is infinite",
@@ -164,22 +158,19 @@
             "Every day is a fresh start and a new opportunity"
         ];
 
-        const selected = quotes.sort(() => 0.5 - Math.random()).slice(0, 3);
-        const container = document.getElementById('scroller');
-        
-        selected.forEach(q => {
+        const selected = list.sort(() => 0.5 - Math.random()).slice(0, 3);
+        const scroller = document.getElementById('scroller');
+        const dots = document.querySelectorAll('.dot');
+
+        selected.forEach(text => {
             const sec = document.createElement('section');
-            sec.innerHTML = `<div class="text">${q}</div>`;
-            container.appendChild(sec);
+            sec.innerHTML = `<div class="affirmation-text">${text}</div>`;
+            scroller.appendChild(sec);
         });
 
-        // 3. Robust Dot Update Logic
-        const dots = document.querySelectorAll('.dot');
-        container.addEventListener('scroll', () => {
-            const scrollPos = container.scrollLeft;
-            const width = container.offsetWidth;
-            const index = Math.round(scrollPos / width);
-            
+        // 3. Dot Update Fix
+        scroller.addEventListener('scroll', () => {
+            const index = Math.round(scroller.scrollLeft / window.innerWidth);
             dots.forEach((dot, i) => {
                 dot.classList.toggle('active', i === index);
             });
