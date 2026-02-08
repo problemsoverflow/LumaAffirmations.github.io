@@ -5,98 +5,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Affirmations</title>
     <style>
-        /* 1. Background with "Baked-in" Stars */
-        /* This uses a CSS gradient to create stars so JS isn't needed for them */
+        /* 1. Basic Dark Background */
         body, html {
-            margin: 0; padding: 0; height: 100%; width: 100%;
-            background-color: #0f0f1a;
-            background-image: 
-                radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 40px 70px, #ffffff, rgba(0,0,0,0)),
-                radial-gradient(1.5px 1.5px at 50px 160px, #ffffff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 80px 120px, #ffffff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 110px 40px, #ffffff, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 150px 150px, #ffffff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 200px 80px, #ffffff, rgba(0,0,0,0));
-            background-size: 200px 200px; /* This repeats the star pattern everywhere */
-            color: #FFFFFF;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            background-color: #0c0c14; /* Solid dark blue/black */
+            color: #ffffff;
             font-family: sans-serif;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
         }
 
-        /* 2. Header Section */
+        /* 2. Manual Stars (Solid White Dots) */
+        .star {
+            position: absolute;
+            background-color: #ffffff; /* Solid white */
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        /* 3. Header (Fixed at Top) */
         header {
+            margin-top: 25vh; /* Moves it down from the very top */
             text-align: center;
             z-index: 10;
         }
 
         h1 {
             font-weight: 300;
-            font-size: 28px;
-            margin: 0 0 10px 0;
-            color: #FFFFFF;
+            font-size: 24px;
+            margin: 0;
         }
 
         .line {
             width: 120px;
             height: 1px;
-            background-color: #555555;
-            margin: 0 auto;
+            background-color: #666666; /* Solid grey */
+            margin: 15px auto 0;
         }
 
-        /* 3. Scrolling Content */
+        /* 4. Affirmation Text (Right below the line) */
         .scroller {
             width: 100%;
             display: flex;
             overflow-x: auto;
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
-            margin-top: 30px; /* The gap you wanted */
+            z-index: 10;
+            margin-top: 40px; /* Small gap between line and text */
         }
+
         .scroller::-webkit-scrollbar { display: none; }
 
         section {
             flex: 0 0 100%;
-            padding: 0 40px;
-            scroll-snap-align: start;
+            padding: 0 30px;
             display: flex;
             justify-content: center;
+            scroll-snap-align: start;
         }
 
         .text {
             font-style: italic;
-            font-size: 22px;
+            font-size: 20px;
             line-height: 1.4;
-            color: #CCCCCC;
+            color: #cccccc; /* Light grey text */
             text-align: center;
-            max-width: 300px;
+            max-width: 280px;
         }
 
-        /* 4. Dots (Solid Colors - No transparency) */
+        /* 5. Navigation Dots (Solid Colors) */
         .nav-dots {
-            margin-top: 50px;
+            margin-top: 40px;
             display: flex;
-            gap: 15px;
+            gap: 12px;
+            z-index: 10;
         }
 
         .dot {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
+            background-color: #333333; /* Solid dark grey */
             border-radius: 50%;
-            background-color: #444444; /* Dark grey for inactive */
         }
 
         .dot.active {
-            background-color: #FFFFFF; /* Pure white for active */
-            box-shadow: 0 0 10px #FFFFFF;
+            background-color: #ffffff; /* Solid bright white */
         }
     </style>
 </head>
 <body>
+
+    <div id="stars"></div>
 
     <header>
         <h1>Daily Affirmations</h1>
@@ -107,13 +111,25 @@
         </div>
 
     <div class="nav-dots">
-        <div class="dot active" id="dot0"></div>
-        <div class="dot" id="dot1"></div>
-        <div class="dot" id="dot2"></div>
+        <div class="dot active" id="d0"></div>
+        <div class="dot" id="d1"></div>
+        <div class="dot" id="d2"></div>
     </div>
 
     <script>
-        const affirmations = [
+        // Create 100 solid white stars
+        const starBox = document.getElementById('stars');
+        for (let i = 0; i < 100; i++) {
+            const s = document.createElement('div');
+            s.className = 'star';
+            s.style.width = '2px';
+            s.style.height = '2px';
+            s.style.left = Math.random() * 100 + '%';
+            s.style.top = Math.random() * 100 + '%';
+            starBox.appendChild(s);
+        }
+
+        const quotes = [
             "The challenges I face help me to grow into the person I am meant to be",
             "I am worthy of the life I say I want",
             "My potential to succeed is infinite",
@@ -126,21 +142,21 @@
             "Every day is a fresh start and a new opportunity"
         ];
 
-        // Shuffle and pick 3
-        const selected = affirmations.sort(() => 0.5 - Math.random()).slice(0, 3);
+        // Pick 3 random
+        const selected = quotes.sort(() => 0.5 - Math.random()).slice(0, 3);
         const scroller = document.getElementById('scroller');
 
-        selected.forEach((txt) => {
+        selected.forEach(t => {
             const sec = document.createElement('section');
-            sec.innerHTML = `<div class="text">${txt}</div>`;
+            sec.innerHTML = `<div class="text">${t}</div>`;
             scroller.appendChild(sec);
         });
 
-        // Scroll listener for dots
+        // Simple Dot Switcher
         scroller.addEventListener('scroll', () => {
             const index = Math.round(scroller.scrollLeft / window.innerWidth);
-            for(let i=0; i<3; i++) {
-                document.getElementById('dot'+i).className = (i === index) ? 'dot active' : 'dot';
+            for(let i=0; i<3; i++){
+                document.getElementById('d'+i).style.backgroundColor = (i === index) ? '#ffffff' : '#333333';
             }
         });
     </script>
